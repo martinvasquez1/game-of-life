@@ -36,12 +36,12 @@ def parse_args():
 def init_pygame(dimensions, cell_size):
     rows = dimensions["rows"]
     columns = dimensions["columns"]
-    SCREEN_WIDTH = cell_size * rows
-    SCREEN_HEIGHT = cell_size * columns
+    screen_width = cell_size * columns
+    screen_height = cell_size * rows
 
     pygame.init()
 
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((screen_width, screen_height))
 
     return screen
 
