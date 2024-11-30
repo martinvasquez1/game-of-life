@@ -1,22 +1,11 @@
 import argparse
+import os
 import random
 import sys
 import time
 
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
-
-SIZE = 25
-
-CELL_SIZE = 25
-GRID_WIDTH = SIZE
-GRID_HEIGHT = SIZE
-SCREEN_WIDTH = CELL_SIZE * GRID_WIDTH
-SCREEN_HEIGHT = CELL_SIZE * GRID_HEIGHT
-
-pygame.init()
-
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("2D Grid Display")
 
 
 def parse_args():
@@ -36,32 +25,56 @@ def parse_args():
         default=10,
         help="Number of generations to simulate",
     )
+    parser.add_argument(
+        "-s", "--cell-size", type=int, default=10, help="Size of each cell in pixels"
+    )
 
     args = parser.parse_args()
     return args
 
 
-def generate_map(size):
+def init_pygame(dimensions, cell_size):
+    rows = dimensions["rows"]
+    columns = dimensions["columns"]
+    SCREEN_WIDTH = cell_size * rows
+    SCREEN_HEIGHT = cell_size * columns
+
+    pygame.init()
+
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    return screen
+
+
+def check_quit_event():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+
+def generate_map(dimensions):
     map = []
 
-    for i in range(size):
+    for i in range(dimensions["rows"]):
         map.append([])
 
-        for _ in range(size):
+        for _ in range(dimensions["columns"]):
             cell_status = random.randint(0, 1)
             map[i].append(cell_status)
 
     return map
 
 
-def is_position_out_of_range(cell_pos, map):
-    size = len(map[0]) - 1
+def is_position_out_of_range(cell_pos, dimensions):
+    rows_size = dimensions["rows"] - 1
+    cols_size = dimensions["columns"] - 1
 
     pos_x = cell_pos[0]
     pos_y = cell_pos[1]
 
-    is_x_out = pos_x < 0 or pos_x > size
-    is_y_out = pos_y < 0 or pos_y > size
+    is_x_out = pos_x < 0 or pos_x > rows_size
+    is_y_out = pos_y < 0 or pos_y > cols_size
 
     if is_x_out or is_y_out:
         return True
@@ -69,7 +82,7 @@ def is_position_out_of_range(cell_pos, map):
     return False
 
 
-def get_live_neighbors(cell_pos, map):
+def get_live_neighbors(cell_pos, map, dimensions):
     amount_of_live_neighbors = 0
 
     neighbors_position = [
@@ -87,8 +100,8 @@ def get_live_neighbors(cell_pos, map):
         x = cell_pos[0] + (neighbor_pos[0] * -1)
         y = cell_pos[1] + (neighbor_pos[1] * -1)
 
-        coord_out = is_position_out_of_range([x, y], map)
-        if coord_out:
+        is_coord_out = is_position_out_of_range([x, y], dimensions)
+        if is_coord_out:
             continue
 
         neighbor_cell = map[x][y]
@@ -100,11 +113,11 @@ def get_live_neighbors(cell_pos, map):
     return amount_of_live_neighbors
 
 
-def apply_rules(map, size):
-    for i in range(size):
-        for j in range(size):
+def apply_rules(map, dimensions):
+    for i in range(dimensions["rows"]):
+        for j in range(dimensions["columns"]):
             cell_pos = [i, j]
-            live_neighbors = get_live_neighbors(cell_pos, map)
+            live_neighbors = get_live_neighbors(cell_pos, map, dimensions)
 
             overpopulation_death = live_neighbors > 3
             loneliness_death = live_neighbors < 2
@@ -120,9 +133,9 @@ def apply_rules(map, size):
     return map
 
 
-def draw_grid(map):
-    for row in range(SIZE):
-        for col in range(SIZE):
+def draw_grid(screen, map, dimensions, cell_size):
+    for row in range(dimensions["rows"]):
+        for col in range(dimensions["columns"]):
 
             if map[row][col] == 1:
                 color = (255, 255, 255)
@@ -130,37 +143,32 @@ def draw_grid(map):
                 color = (0, 0, 0)
 
             pygame.draw.rect(
-                screen, color, (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+                screen, color, (col * cell_size, row * cell_size, cell_size, cell_size)
             )
+
+    pygame.display.flip()
 
 
 def main():
     args = parse_args()
 
-    print(args.rows)
+    cell_size = args.cell_size
+    dimensions = {"rows": args.rows, "columns": args.cols}
+    map = generate_map(dimensions)
 
-    map = generate_map(SIZE)
+    screen = init_pygame(dimensions, cell_size)
     screen.fill((255, 255, 255))
 
     running = True
+
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+        check_quit_event()
 
-        map = apply_rules(map, SIZE)
-
-        draw_grid(map)
-
-        # Update display
-        pygame.display.flip()
+        map = apply_rules(map, dimensions)
+        draw_grid(screen, map, dimensions, cell_size)
 
         time.sleep(0.1)
 
 
 if __name__ == "__main__":
     main()
-
-
-pygame.quit()
-sys.exit()
