@@ -63,17 +63,16 @@ def get_live_neighbors(cell_pos, map):
     return amount_of_live_neighbors
 
 
-def loneliness_death(map, size):
-    pass
-
-
-def overpopulation_death(map, size):
+def death_conditions(map, size):
     for i in range(size):
         for j in range(size):
             cell_pos = [i, j]
             live_neighbors = get_live_neighbors(cell_pos, map)
 
-            if live_neighbors > 3:
+            overpopulation_death = live_neighbors > 3
+            loneliness_death = live_neighbors < 2
+
+            if overpopulation_death or loneliness_death:
                 map[i][j] = 0
 
     return map
@@ -87,8 +86,7 @@ def main():
     map = generate_map(SIZE)
 
     while True:
-        # map = loneliness_death(map, SIZE)
-        map = overpopulation_death(map, SIZE)
+        map = death_conditions(map, SIZE)
         # map = reproduction(map, SIZE)
 
         print(map)
