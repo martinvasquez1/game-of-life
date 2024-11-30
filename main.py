@@ -1,12 +1,13 @@
+import argparse
 import random
 import sys
 import time
 
 import pygame
 
-SIZE = 10
+SIZE = 25
 
-CELL_SIZE = 20
+CELL_SIZE = 25
 GRID_WIDTH = SIZE
 GRID_HEIGHT = SIZE
 SCREEN_WIDTH = CELL_SIZE * GRID_WIDTH
@@ -16,6 +17,28 @@ pygame.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("2D Grid Display")
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser = argparse.ArgumentParser(description="Conway's Game of Life")
+    parser.add_argument(
+        "-r", "--rows", type=int, default=10, help="Number of rows in the board"
+    )
+    parser.add_argument(
+        "-c", "--cols", type=int, default=10, help="Number of columns in the board"
+    )
+    parser.add_argument(
+        "-g",
+        "--generations",
+        type=int,
+        default=10,
+        help="Number of generations to simulate",
+    )
+
+    args = parser.parse_args()
+    return args
 
 
 def generate_map(size):
@@ -112,6 +135,10 @@ def draw_grid(map):
 
 
 def main():
+    args = parse_args()
+
+    print(args.rows)
+
     map = generate_map(SIZE)
     screen.fill((255, 255, 255))
 
