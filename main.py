@@ -1,7 +1,21 @@
 import random
+import sys
 import time
 
+import pygame
+
 SIZE = 10
+
+CELL_SIZE = 20
+GRID_WIDTH = SIZE
+GRID_HEIGHT = SIZE
+SCREEN_WIDTH = CELL_SIZE * GRID_WIDTH
+SCREEN_HEIGHT = CELL_SIZE * GRID_HEIGHT
+
+pygame.init()
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("2D Grid Display")
 
 
 def generate_map(size):
@@ -83,15 +97,43 @@ def apply_rules(map, size):
     return map
 
 
+def draw_grid(map):
+    for row in range(SIZE):
+        for col in range(SIZE):
+
+            if map[row][col] == 1:
+                color = (255, 255, 255)
+            else:
+                color = (0, 0, 0)
+
+            pygame.draw.rect(
+                screen, color, (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+            )
+
+
 def main():
     map = generate_map(SIZE)
+    screen.fill((255, 255, 255))
 
-    while True:
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
         map = apply_rules(map, SIZE)
 
-        print(map)
-        time.sleep(2)
+        draw_grid(map)
+
+        # Update display
+        pygame.display.flip()
+
+        time.sleep(0.1)
 
 
 if __name__ == "__main__":
     main()
+
+
+pygame.quit()
+sys.exit()
