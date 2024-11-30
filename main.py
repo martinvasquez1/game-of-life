@@ -63,7 +63,7 @@ def get_live_neighbors(cell_pos, map):
     return amount_of_live_neighbors
 
 
-def death_conditions(map, size):
+def apply_rules(map, size):
     for i in range(size):
         for j in range(size):
             cell_pos = [i, j]
@@ -75,19 +75,19 @@ def death_conditions(map, size):
             if overpopulation_death or loneliness_death:
                 map[i][j] = 0
 
+            should_reproduce = live_neighbors == 3
+
+            if should_reproduce:
+                map[i][j] = 1
+
     return map
-
-
-def reproduction(map, size):
-    pass
 
 
 def main():
     map = generate_map(SIZE)
 
     while True:
-        map = death_conditions(map, SIZE)
-        # map = reproduction(map, SIZE)
+        map = apply_rules(map, SIZE)
 
         print(map)
         time.sleep(2)
