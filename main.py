@@ -13,20 +13,27 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description="Conway's Game of Life")
     parser.add_argument(
-        "-r", "--rows", type=int, default=10, help="Number of rows in the board"
+        "-r", "--rows", type=int, default=25, help="Number of rows in the board"
     )
     parser.add_argument(
-        "-c", "--cols", type=int, default=10, help="Number of columns in the board"
+        "-c", "--cols", type=int, default=25, help="Number of columns in the board"
     )
     parser.add_argument(
         "-g",
         "--generations",
         type=int,
-        default=100,
+        default=600,
         help="Number of generations to simulate",
     )
     parser.add_argument(
-        "-s", "--cell-size", type=int, default=10, help="Size of each cell in pixels"
+        "-b",
+        "--birth-probability",
+        type=float,
+        default="0.25",
+        help="Initial probability of a cell being alive",
+    )
+    parser.add_argument(
+        "-s", "--cell-size", type=int, default=20, help="Size of each cell in pixels"
     )
 
     args = parser.parse_args()
@@ -53,15 +60,15 @@ def check_quit_event():
             sys.exit()
 
 
-def generate_map(dimensions):
+def generate_map(dimensions, birth_probability):
     map = []
 
     for i in range(dimensions["rows"]):
         map.append([])
 
         for _ in range(dimensions["columns"]):
-            cell_status = random.randint(0, 1)
-            map[i].append(cell_status)
+            cell_state = 1 if random.random() < birth_probability else 0
+            map[i].append(cell_state)
 
     return map
 
@@ -154,8 +161,10 @@ def main():
 
     generations = args.generations
     cell_size = args.cell_size
+    birth_probability = args.birth_probability
     dimensions = {"rows": args.rows, "columns": args.cols}
-    map = generate_map(dimensions)
+
+    map = generate_map(dimensions, birth_probability)
 
     screen = init_pygame(dimensions, cell_size)
     screen.fill((255, 255, 255))
