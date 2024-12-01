@@ -35,6 +35,13 @@ def parse_args():
     parser.add_argument(
         "-s", "--cell-size", type=int, default=20, help="Size of each cell in pixels"
     )
+    parser.add_argument(
+        "-w",
+        "--wait-time",
+        type=float,
+        default=0.1,
+        help="Wait time between generations in seconds",
+    )
 
     args = parser.parse_args()
     return args
@@ -160,8 +167,9 @@ def main():
     args = parse_args()
 
     generations = args.generations
-    cell_size = args.cell_size
+    wait_time = args.wait_time
     birth_probability = args.birth_probability
+    cell_size = args.cell_size
     dimensions = {"rows": args.rows, "columns": args.cols}
 
     map = generate_map(dimensions, birth_probability)
@@ -177,7 +185,7 @@ def main():
         map = apply_rules(map, dimensions)
         draw_grid(screen, map, dimensions, cell_size)
 
-        time.sleep(0.1)
+        time.sleep(wait_time)
 
 
 if __name__ == "__main__":
