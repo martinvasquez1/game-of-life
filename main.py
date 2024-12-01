@@ -22,7 +22,7 @@ def parse_args():
         "-g",
         "--generations",
         type=int,
-        default=10,
+        default=100,
         help="Number of generations to simulate",
     )
     parser.add_argument(
@@ -152,6 +152,7 @@ def draw_grid(screen, map, dimensions, cell_size):
 def main():
     args = parse_args()
 
+    generations = args.generations
     cell_size = args.cell_size
     dimensions = {"rows": args.rows, "columns": args.cols}
     map = generate_map(dimensions)
@@ -161,7 +162,7 @@ def main():
 
     running = True
 
-    while running:
+    for generation in range(generations):
         check_quit_event()
 
         map = apply_rules(map, dimensions)
